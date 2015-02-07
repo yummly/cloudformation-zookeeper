@@ -60,9 +60,9 @@
   "Mappings" : {
     "RegionMap" : {
       "us-east-1" : {
-        "AMI" : "ami-f40bbe9c"
+        "AMI" : "ami-86fabdee"
       },
-      "us-west-1" : {
+      "Us-west-1" : {
         "AMI" : "ami-cfe2ea8a"
       },
       "us-west-2" : {
@@ -155,7 +155,7 @@
       "Properties" : {
         "KeyName" : { "Ref" : "KeyName" },
         "ImageId" : { "Fn::FindInMap" : [ "RegionMap", { "Ref" : "AWS::Region" }, "AMI"] },
-        "SecurityGroups" : [ { "Ref" : "ServerSecurityGroup" }, { "Ref" : "AdminSecurityGroup" }  ],
+        "SecurityGroups" : [ { "Ref" : "ServerSecurityGroup" }  ],
         "AssociatePublicIpAddress": "true",
         "InstanceType" : { "Ref" : "InstanceType" },
         "UserData"       : { "Fn::Base64" : { "Fn::Join" : ["", [
@@ -206,7 +206,9 @@
           [ { "IpProtocol" : "tcp", "FromPort" : "8181", "ToPort" : "8181", "SourceSecurityGroupId" : { "Ref" : "LbSecurityGroup"} },
             { "IpProtocol" : "tcp", "FromPort" : "2181", "ToPort" : "2181", "SourceSecurityGroupId" : { "Ref" : "ClientSecurityGroup"} },
             { "IpProtocol" : "tcp", "FromPort" : "2888", "ToPort" : "2888", "SourceSecurityGroupId" : { "Ref" : "ClientSecurityGroup"} },
-            { "IpProtocol" : "tcp", "FromPort" : "3888", "ToPort" : "3888", "SourceSecurityGroupId" : { "Ref" : "ClientSecurityGroup"} } ]
+            { "IpProtocol" : "tcp", "FromPort" : "3888", "ToPort" : "3888", "SourceSecurityGroupId" : { "Ref" : "ClientSecurityGroup"} },
+            { "IpProtocol" : "tcp", "FromPort" : "0", "ToPort" : "65535", "SourceSecurityGroupId" : { "Ref" : "AdminSecurityGroup"} }
+          ]
       }
     },
 
@@ -227,7 +229,9 @@
         "GroupDescription" : "Enable Exhibitor access",
         "VpcId" : { "Ref" : "VpcId" },
         "SecurityGroupIngress" :
-          [ { "IpProtocol" : "tcp", "FromPort" : "80", "ToPort" : "80", "SourceSecurityGroupId" : { "Ref" : "ClientSecurityGroup"} } ]
+        [ { "IpProtocol" : "tcp", "FromPort" : "80", "ToPort" : "80", "SourceSecurityGroupId" : { "Ref" : "ClientSecurityGroup"} },
+          { "IpProtocol" : "tcp", "FromPort" : "80", "ToPort" : "80", "SourceSecurityGroupId" : { "Ref" : "AdminSecurityGroup"} }
+        ]
       }
     },
 
@@ -236,7 +240,7 @@
       "Properties" : {
         "CrossZone": "true",
         "Scheme": "internal",
-        "SecurityGroups": [{ "Ref": "LbSecurityGroup" }, { "Ref": "AdminSecurityGroup" }],
+        "SecurityGroups": [{ "Ref": "LbSecurityGroup" }],
         "Subnets": { "Ref": "Subnets" },
         "Listeners" : [ {
           "LoadBalancerPort" : "80",
